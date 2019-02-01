@@ -123,6 +123,8 @@ public interface ZerothMic {
     void stopListener();
 
     boolean shutdown();
+    
+    void setWebSocketListener(OnWebSocketListener l);
 
 }
 ```
