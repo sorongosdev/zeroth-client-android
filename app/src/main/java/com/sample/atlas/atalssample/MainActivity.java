@@ -2,6 +2,7 @@ package com.sample.atlas.atalssample;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.atlas.zerothandroid.ExLog;
 import com.atlas.zerothandroid.OnGetTokenListener;
+import com.atlas.zerothandroid.OnWebSocketListener;
 import com.atlas.zerothandroid.OnZerothResult;
 import com.atlas.zerothandroid.Zeroth;
 import com.atlas.zerothandroid.ZerothDefine;
@@ -21,9 +23,14 @@ import com.atlas.zerothandroid.ZerothMic;
 import com.atlas.zerothandroid.ZerothParam;
 import com.atlas.zerothandroid.network.ErrorModel;
 import com.atlas.zerothandroid.network.GsonManager;
+import com.atlas.zerothandroid.network.OAuthToken;
 import com.atlas.zerothandroid.network.Transcript;
 
 import java.util.ArrayList;
+
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okio.ByteString;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -54,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mParam = new ZerothParam();
                 mParam.language = ZerothDefine.ZEROTH_LANG_KOR;
-                mParam.channelConfig = ZerothDefine.OPT_16_KHZ_MONO;
+                mParam.channels = ZerothDefine.ZEROTH_MONO;
                 mParam.audioRate = ZerothDefine.ZEROTH_RATE_16;
                 mParam.isFinal = false;
                 startZeroth(mParam);
@@ -68,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 mParam = new ZerothParam();
                 mParam.language = ZerothDefine.ZEROTH_LANG_KOR;
-                mParam.channelConfig = ZerothDefine.OPT_44_KHZ_MONO;
+                mParam.channels = ZerothDefine.ZEROTH_MONO;
                 mParam.audioRate = ZerothDefine.ZEROTH_RATE_44;
                 mParam.isFinal = false;
                 startZeroth(mParam);
@@ -85,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         }
         Zeroth.getToken(new OnGetTokenListener() {
             @Override
-            public void onGetToken(com.atlas.zerothandroid.network.OAuthToken oAuthToken) {
+            public void onGetToken(OAuthToken oAuthToken) {
                 param.accessToken = oAuthToken.access_token;
                 mZerothMic = Zeroth.createZerothMic(param, new OnZerothResult() {
 
@@ -111,6 +118,38 @@ public class MainActivity extends AppCompatActivity {
                         ExLog.i("ZerothResult","fail...=" + GsonManager.toJson(errorModel));
                     }
 
+                });
+
+                mZerothMic.setWebSocketListener(new OnWebSocketListener() {
+                    @Override
+                    public void onOpen(WebSocket webSocket, Response response) {
+
+                    }
+
+                    @Override
+                    public void onMessage(WebSocket webSocket, String text) {
+
+                    }
+
+                    @Override
+                    public void onMessage(WebSocket webSocket, ByteString bytes) {
+
+                    }
+
+                    @Override
+                    public void onClosing(WebSocket webSocket, int code, String reason) {
+
+                    }
+
+                    @Override
+                    public void onClosed(WebSocket webSocket, int code, String reason) {
+
+                    }
+
+                    @Override
+                    public void onFailure(WebSocket webSocket, Throwable t, @Nullable Response response) {
+
+                    }
                 });
             }
 

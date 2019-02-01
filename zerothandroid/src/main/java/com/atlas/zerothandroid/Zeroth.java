@@ -48,11 +48,6 @@ public class Zeroth {
     private static boolean mIsInit = false;
 
     /**
-     * Zeroth 실행을 위한 파라미터
-     */
-    private static ZerothParam mParam;
-
-    /**
      * {@link Zeroth#getToken()}
      */
     private static String accessToken;
@@ -63,16 +58,17 @@ public class Zeroth {
     private static int audioRate = ZerothDefine.ZEROTH_RATE_16;
 
     /**
-     * OPT_16, OPT_44
+     * {@link ZerothDefine#OPT_16_KHZ}
+     * {@link ZerothDefine#OPT_44_KHZ}
      */
-    private static String channelConfig = ZerothDefine.OPT_16_KHZ_MONO;
+    private static String channelConfig;
+
+    private static int channels = ZerothDefine.ZEROTH_MONO;
 
     /**
      * supported language {eng, kor} default kor
      */
     private static String language = ZerothDefine.ZEROTH_LANG_KOR;
-
-    private static int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
     private static boolean final_only   = false;
     public static Boolean isStreaming   = false;
@@ -83,6 +79,10 @@ public class Zeroth {
     public static void initialize( @NonNull Context context,
                             @NonNull String pAppId,
                             @NonNull String pAppSecret) {
+        if(pAppId.length() == 0 || pAppSecret.length() == 0) {
+            throw new RuntimeException("AppId or AppSecret is null");
+        }
+
         //Api init
         mContext = context;
         appId = pAppId;
@@ -177,12 +177,14 @@ public class Zeroth {
 
         accessToken     = param.accessToken;
         audioRate       = param.audioRate;
-        channelConfig   = param.channelConfig;
         language        = param.language;
+        channels        = param.channels;
         onZerothResult  = onZerothResultListener;
+        channelConfig   = String.format(param.audioRate == ZerothDefine.ZEROTH_RATE_16 ?
+                        ZerothDefine.OPT_16_KHZ : ZerothDefine.OPT_44_KHZ, param.channels);
         mZerothAudioRecordRunnable = new ZerothAudioRecordRunnable(
                 audioRate,
-                audioFormat,
+                channels,
                 mZerothMicImp);
         onZerothResult.onProgressStatus(ZerothDefine.ZerothStatus.INIT);
 
@@ -204,6 +206,7 @@ public class Zeroth {
     private static class ZerothMicImpl implements ZerothMic, OnAudioStreamListener, OnWebSocketListener{
 
         private Thread mMicThread;
+        private OnWebSocketListener listener;
 
         @Override
         public void startListener() {
@@ -248,33 +251,59 @@ public class Zeroth {
         }
 
         @Override
+        public void setWebSocketListener(OnWebSocketListener l) {
+            listener = l;
+        }
+
+        @Override
         public void getAudioStreamingData(byte[] bytes) {
             ZerothWebSocket.getInstance().send(ByteString.of(bytes));
         }
 
         @Override
-        public void onOpen(WebSocket webSocket, okhttp3.Response response) {}
+        public void onOpen(WebSocket webSocket, okhttp3.Response response) {
+            if(listener != null) {
+                listener.onOpen(webSocket,response);
+            }
+        }
 
         @Override
-        public void onMessage(WebSocket webSocket, String text) {}
+        public void onMessage(WebSocket webSocket, String text) {
+            if(listener != null) {
+                listener.onMessage(webSocket,text);
+            }
+        }
 
         @Override
-        public void onMessage(WebSocket webSocket, ByteString bytes) {}
+        public void onMessage(WebSocket webSocket, ByteString bytes) {
+            if(listener != null) {
+                listener.onMessage(webSocket,bytes);
+            }
+        }
 
         @Override
         public void onClosing(WebSocket webSocket, int code, String reason) {
             onZerothResult.onFailed(new ErrorModel(code, "", reason));
+            if(listener != null) {
+                listener.onClosing(webSocket, code,reason);
+            }
         }
 
         @Override
         public void onClosed(WebSocket webSocket, int code, String reason) {
             onZerothResult.onFailed(new ErrorModel(code, "", reason));
+            if(listener != null) {
+                listener.onClosed(webSocket, code,reason);
+            }
         }
 
         @Override
         public void onFailure(WebSocket webSocket, Throwable t, @Nullable okhttp3.Response response) {
             int code = response != null ? response.code() : ZerothDefine.ERROR_SOCKET_FAIL;
             onZerothResult.onFailed(new ErrorModel(code, t.getMessage(), t.getLocalizedMessage()));
+            if(listener != null) {
+                listener.onFailure(webSocket,t,response);
+            }
         }
     }
 

@@ -8,4 +8,6 @@ public interface ZerothMic {
 
     boolean shutdown();
 
+    void setWebSocketListener(OnWebSocketListener l);
+
 }

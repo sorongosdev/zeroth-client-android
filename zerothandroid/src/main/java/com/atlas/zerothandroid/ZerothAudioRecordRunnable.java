@@ -12,24 +12,27 @@ public class ZerothAudioRecordRunnable implements Runnable {
     public OnAudioStreamListener listener;
 
     public ZerothAudioRecordRunnable(@NonNull int sampleRateInHZ,
-                                     @NonNull int audioFormat,
+                                     @NonNull int channels,
                                      @NonNull OnAudioStreamListener listener) {
 
         this.listener = listener;
         this.minBufferSize = AudioRecord.getMinBufferSize(
                 sampleRateInHZ,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                audioFormat);
+                channels == ZerothDefine.ZEROTH_MONO ?
+                         AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT);
         this.audioRecord = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION,
                 sampleRateInHZ,
-                AudioFormat.CHANNEL_CONFIGURATION_MONO,
-                audioFormat,
+                channels == ZerothDefine.ZEROTH_MONO ?
+                        AudioFormat.CHANNEL_IN_MONO : AudioFormat.CHANNEL_IN_STEREO,
+                AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize);
 
         minBufferSize = 8000;
         ExLog.i("ZerothAudioRecordRunnable", "ZerothAudioRecordRunnable init"
                 + "sampleRateInHZ=" + sampleRateInHZ
-                + "audioFormat=" + audioFormat);
+                + "audioFormat=" + AudioFormat.ENCODING_PCM_16BIT
+                + "channels= " + channels);
     }
 
     @Override
