@@ -28,12 +28,13 @@ public class ZerothAudioRecordRunnable implements Runnable {
                 AudioFormat.ENCODING_PCM_16BIT,
                 minBufferSize);
 
-        minBufferSize = 8000;
+        minBufferSize = getBufferSize(sampleRateInHZ, channels);
         ExLog.i("ZerothAudioRecordRunnable", "ZerothAudioRecordRunnable init"
                 + "sampleRateInHZ=" + sampleRateInHZ
                 + "audioFormat=" + AudioFormat.ENCODING_PCM_16BIT
                 + "channels= " + channels);
     }
+
 
     @Override
     public void run() {
@@ -60,6 +61,13 @@ public class ZerothAudioRecordRunnable implements Runnable {
 
     public void shutdown() {
         audioRecord.release();
+    }
+
+    /**
+     * bitrate = bitsperSample * samplePerSecond * channel;
+     */
+    public int getBufferSize(int sampleRateHZ, int channels) {
+        return (int)(((16 * sampleRateHZ * channels) / 8) * 0.25f);
     }
 
 }
