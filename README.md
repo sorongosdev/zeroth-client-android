@@ -1,5 +1,5 @@
 
-## Zeroth Speech-To-Text library for Andoird
+## Zeroth Speech-To-Text library for And
 
 Zeroth was initially developed as part of Atlas’s Conversational AI platform, which enables enterprises to add analysis and intelligence to their conversational data. Visit our homepage for more information.
 
