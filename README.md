@@ -1,7 +1,7 @@
 
 ## Zeroth Speech-To-Text library for Android
 
-Zeroth was initially developed as part of Atlas’s Conversational AI platform, which enables enterprises to add analysis and intelligence to their conversational data. Visit our homepage for more information.
+Zeroth was initially developed as a part of Atlas’s Conversational AI platform, which enables enterprise to add analysis and intelligence to their conversational data. Visit our homepage for more information.
 
 We now introduce Zeroth Cloud as a hosted service for any developer to incorporate speech-to-text into his or her service*.*
 
