@@ -10,9 +10,11 @@ public class ZerothAudioRecordRunnable implements Runnable {
     public AudioRecord audioRecord;
     public int minBufferSize;
     public OnAudioStreamListener listener;
+    public boolean use_vad;
 
     public ZerothAudioRecordRunnable(@NonNull int sampleRateInHZ,
                                      @NonNull int channels,
+                                     @NonNull boolean use_vad,
                                      @NonNull OnAudioStreamListener listener) {
 
         this.listener = listener;
@@ -33,6 +35,7 @@ public class ZerothAudioRecordRunnable implements Runnable {
                 + "sampleRateInHZ=" + sampleRateInHZ
                 + "audioFormat=" + AudioFormat.ENCODING_PCM_16BIT
                 + "channels= " + channels);
+        this.use_vad = use_vad;
     }
 
 
@@ -45,7 +48,10 @@ public class ZerothAudioRecordRunnable implements Runnable {
                 while (Zeroth.isStreaming) {
                     audioRecord.read(buffer, 0, buffer.length);
                     if (listener != null) {
-                        listener.getAudioStreamingData(buffer);
+                        if(this.use_vad)
+                            listener.getAudioStreamingData_VAD(buffer);
+                        else
+                            listener.getAudioStreamingData(buffer);
                     }
                 }
             }

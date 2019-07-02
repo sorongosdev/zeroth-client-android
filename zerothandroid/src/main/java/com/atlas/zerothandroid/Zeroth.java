@@ -18,6 +18,8 @@ import com.atlas.zerothandroid.network.ErrorModel;
 import com.atlas.zerothandroid.network.OAuthToken;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -64,6 +66,8 @@ public class Zeroth {
     private static String channelConfig;
 
     private static int channels = ZerothDefine.ZEROTH_MONO;
+
+    private static boolean use_vad = true;
 
     /**
      * supported language {eng, kor} default kor
@@ -185,6 +189,7 @@ public class Zeroth {
         mZerothAudioRecordRunnable = new ZerothAudioRecordRunnable(
                 audioRate,
                 channels,
+                use_vad,
                 mZerothMicImp);
         onZerothResult.onProgressStatus(ZerothDefine.ZerothStatus.INIT);
 
@@ -208,6 +213,20 @@ public class Zeroth {
         private Thread mMicThread;
         private OnWebSocketListener listener;
 
+        private double dynamic_energy_adjustment_damping;
+        private double dynamic_energy_ratio;
+        private double energy_threshold;
+        private double energy;
+        private double damping;
+        private double target_energy;
+        private int curr_state;
+        private int prev_state;
+        private int pause_count;
+        private int pause_threshold;
+        private int pause_buffer_count;
+        private ByteBuffer buffer;
+        private double seconds_per_buffer;
+
         @Override
         public void startListener() {
 
@@ -216,6 +235,23 @@ public class Zeroth {
              */
             ZerothWebSocket.getInstance().init(accessToken, language, final_only, channelConfig, onZerothResult);
             ZerothWebSocket.getInstance().setWebSocketListener(this);
+
+            /**
+             * Parameters for VAD
+             *  energy_threshold = 300;   // 민감도: 높은 값을 잡을 수록 작은 소리에는 오디오 전송을 시작하지 않음
+             *  pause_threshold  = 3;     // 단위: 초, 말소리가 작아진 뒤 몇 초를 기다리고 끊을 것인지 결정
+             */
+
+            dynamic_energy_adjustment_damping = 0.15;
+            dynamic_energy_ratio = 1.5;
+            energy_threshold = 300;
+            pause_threshold = 3;
+            curr_state  = 0;
+            prev_state  = 0;
+            pause_count = 0;
+            seconds_per_buffer = (double)mZerothAudioRecordRunnable.minBufferSize / 2.0 / (double)audioRate;
+            buffer = ByteBuffer.allocate(mZerothAudioRecordRunnable.minBufferSize * 4);
+            pause_buffer_count = (int)Math.ceil((pause_threshold / seconds_per_buffer));
 
             mMicThread = new Thread(mZerothAudioRecordRunnable);
             mMicThread.start();
@@ -255,9 +291,80 @@ public class Zeroth {
             listener = l;
         }
 
+        public double getRMS(byte[] bytes) {
+            // convert byte[] into short[]
+            short[] shorts = new short[bytes.length/2];
+            ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(shorts);
+
+            // compute RMS value
+            double sum = 0;
+            for(int i=0; i<shorts.length; i++)
+                sum += shorts[i] * shorts[i];
+            sum /= (double) shorts.length;
+            return Math.sqrt(sum);
+        }
+
         @Override
         public void getAudioStreamingData(byte[] bytes) {
             ZerothWebSocket.getInstance().send(ByteString.of(bytes));
+        }
+
+        @Override
+        public void getAudioStreamingData_VAD(byte[] bytes) {
+
+            // buffering data for the burst transaction
+            //   append new bytes into buffer
+            buffer.put(bytes);
+            //   pop front
+            if(!buffer.hasRemaining()){
+                byte[] front = new byte[bytes.length];
+                buffer.flip();
+                buffer.get(front);
+                buffer.compact();
+            }
+
+            // energy measurement
+            energy = getRMS(bytes);
+
+            // dynamic threshold control (only in initial state)
+            if (curr_state == 0) {
+                damping = Math.pow(dynamic_energy_adjustment_damping, seconds_per_buffer);
+                target_energy = energy * dynamic_energy_ratio;
+                energy_threshold = energy_threshold * damping + target_energy * (1 - damping);
+            }
+            ExLog.i("ZerothMic", "energy = " + energy
+                    + ", threshold = " + energy_threshold
+                    + ", pause_count = " + pause_count
+                    + ", curr_state = " + curr_state);
+
+            // state control
+            if (energy > energy_threshold) {
+                curr_state = 1;
+                pause_count = 0;
+            } else {
+                pause_count += 1;
+            }
+
+            // data sending speed control
+            if (prev_state == 0 && curr_state == 1){
+                // burst transaction
+                ZerothWebSocket.getInstance().send(ByteString.of(buffer));
+                buffer.clear();
+            } else if (curr_state == 1) {
+                // real-time
+                ZerothWebSocket.getInstance().send(ByteString.of(bytes));
+            }
+
+            // silence detected
+            if (pause_count > pause_buffer_count){
+                ExLog.i("ZerothMic", "Silence Detected");
+                isStreaming = false;
+                ZerothWebSocket.getInstance().send(ByteString.encodeUtf8("EOS"));
+                return;
+            }
+
+            // state control
+            prev_state = curr_state;
         }
 
         @Override
