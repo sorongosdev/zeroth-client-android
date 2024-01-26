@@ -1,11 +1,9 @@
 package com.atlas.zerothandroid;
 
 public class ZerothParam {
-
-    /**
-     * accessToken for access to Zeroth Cloud
+    /*
+    마이크, 웹소켓 생성시 필요한 정보들을 담는 데이터 클래스
      */
-    public String accessToken;
 
     /**
      * {@link ZerothDefine#ZEROTH_RATE_16}
@@ -14,14 +12,8 @@ public class ZerothParam {
     public int audioRate;
 
     /**
-     * {@link ZerothDefine#OPT_16_KHZ}
-     * {@link ZerothDefine#OPT_44_KHZ}}
-     */
-    public String channelConfig;
-
-    /**
      * {@link ZerothDefine#ZEROTH_MONO}
-     * {@link ZerothDefine#ZEROTH_STEREO}
+     * {@link ZerothDefine#ZEROTH_MONO}
      */
     public int channels;
 

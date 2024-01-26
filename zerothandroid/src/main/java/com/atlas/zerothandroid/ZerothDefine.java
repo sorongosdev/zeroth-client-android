@@ -1,25 +1,28 @@
 package com.atlas.zerothandroid;
 
 public class ZerothDefine {
+    /*
+    마이크, 웹소켓 연결에 필요한 정보들과 앱의 상태를 전역으로 미리 정의해놓은 클래스
+     */
 
-    public static final String API_OAUTH_URL = "https://zeroth.goodatlas.com:2053";
-    public static final String API_WWS_URL = "wss://zeroth.goodatlas.com:2087/client/ws/speech?access-token=%s&language=%s&final-only=%s&content-type=%s";
+    //웹소켓 연결 주소
+    public static final String MY_URL_test = "ws://119.207.210.70:16007/client/ws/speech?content-type=%s";
+    public static final String MY_URL_DATA_test = "audio/x-raw, layout=(string)interleaved, rate=(int)16000, format=(string)S16LE, channels=(int)1";
 
-    public static final String OPT_16_KHZ = "audio/x-raw,+layout=(string)interleaved,+rate=(int)16000,+format=(string)S16LE,+channels=(int)%d";
-    public static final String OPT_44_KHZ = "audio/x-raw,+layout=(string)interleaved,+rate=(int)44100,+format=(string)S16LE,+channels=(int)%d";
-    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     public static final String DATE_UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'";
 
     public static final String ZEROTH_LANG_KOR = "kor";
     public static final String ZEROTH_LANG_ENG = "eng";
 
+    //웹소켓, 마이크 음성 등급
     public static final int ZEROTH_RATE_16 = 16000;
     public static final int ZEROTH_RATE_44 = 44100;
 
+    //웹소켓 채널 개수 관련
     public static final int ZEROTH_MONO     = 1;
     public static final int ZEROTH_STEREO   = 2;
 
-    public static final int ERROR_GET_TOKEN_FAIL    = 1000;
+    //웹소켓 연결에 실패했을 때 에러코드
     public static final int ERROR_SOCKET_FAIL       = 1001;
 
     public static final int REQUEST_PERMISSIONS_RECORD_AUDIO = 1;

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <!-- "Mark Favorite", should appear as action button if possible -->
+    <item
+        android:id="@+id/restart"
+        android:title="새로시작"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/save"
+        android:title="저장"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/load"
+        android:title="불러오기"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/send"
+        android:title="공유하기"
+        app:showAsAction="never"/>
+
+
+</menu>

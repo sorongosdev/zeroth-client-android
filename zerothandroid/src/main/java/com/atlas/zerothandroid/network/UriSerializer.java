@@ -12,6 +12,7 @@ import java.lang.reflect.Type;
 
 public class UriSerializer implements JsonSerializer<Uri> {
     @Override
+    //Uri를 직렬화하여 반환
     public JsonElement serialize(Uri src, Type typeOfSrc, JsonSerializationContext context) {
         return new JsonPrimitive(src.toString());
     }

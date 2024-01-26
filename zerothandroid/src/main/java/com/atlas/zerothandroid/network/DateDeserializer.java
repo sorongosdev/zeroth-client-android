@@ -13,10 +13,10 @@ import java.util.TimeZone;
 
 
 public class DateDeserializer implements JsonDeserializer<Date> {
-
     public static final String DATE_UTC_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
     @Override
+    //직렬화된 데이터를 "yyyy-MM-dd'T'HH:mm:ss" 형식의 Date객체로 변환하여 반환
     public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         Date dateDate = null;
         String date = json.getAsString();

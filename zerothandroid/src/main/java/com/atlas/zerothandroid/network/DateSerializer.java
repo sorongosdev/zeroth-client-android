@@ -16,6 +16,7 @@ import java.util.TimeZone;
  */
 public class DateSerializer implements JsonSerializer<Date> {
     @Override
+    //날짜를 직렬화하여 반환
     public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
         SimpleDateFormat formatter = new SimpleDateFormat(ZerothDefine.DATE_UTC_FORMAT);
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));

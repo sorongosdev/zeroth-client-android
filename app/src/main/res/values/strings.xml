@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">AtalsSample</string>
+    <string name="app_name">soritgeul</string>
+    <string name="explain1">(설명)\n마이크 아이콘을 클릭 후, 화면에 말을 하면 하단에 텍스트로 표시됩니다.</string>
+    <string name="explain2">(설명)\n화면에 대고 말을 하세요.</string>
 </resources>

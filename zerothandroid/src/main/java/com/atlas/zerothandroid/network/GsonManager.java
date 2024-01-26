@@ -15,6 +15,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class GsonManager {
+    /*
+    java 객체를 json객체로 혹은 반대로 변환하기 위한 메소드들이 모여있는 클래스
+    Gson 라이브러리를 사용한다
+     */
 
     public String toJson()
     {
